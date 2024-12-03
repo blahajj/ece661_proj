@@ -31,27 +31,13 @@ def semantic_chunking(documents, embed_model, breakpoint_threshold_type="percent
     print(f"Semantic chunking resulted in {len(semantic_chunks)} chunks.")
     return semantic_chunks
 
-def create_vectorstore(chunks, embed_model):
-    """Create a vectorstore from document chunks."""
-    vectorstore = Chroma.from_documents(chunks, embedding=embed_model,persist_directory="../data/vector_database")
+def create_or_load_vectorstore(chunks, embed_model, persist_directory="../data/vector_database"):
+    """Create or load a vectorstore from document chunks."""
+    if os.path.exists(persist_directory):
+        print("Loading existing vectorstore...")
+        vectorstore = Chroma(persist_directory=persist_directory, embedding_function=embed_model)
+    else:
+        print("Creating new vectorstore...")
+        vectorstore = Chroma.from_documents(chunks, embedding=embed_model, persist_directory=persist_directory)
+        vectorstore.persist()  # Save the vectorstore to disk
     return vectorstore
-
-if __name__ == "__main__":
-    # Set the path to your PDF file
-    file_path = "../data/reports/axp-report.pdf"
-    
-    # Load documents
-    documents = load_documents(file_path)
-    
-    # Initialize embedding model
-    embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
-    
-    # Naive chunking
-    naive_chunks = naive_chunking(documents)
-    
-    # Semantic chunking
-    semantic_chunks = semantic_chunking(documents, embed_model)
-    
-    # Create vectorstores
-    naive_vectorstore = create_vectorstore(naive_chunks, embed_model)
-    semantic_vectorstore = create_vectorstore(semantic_chunks, embed_model)

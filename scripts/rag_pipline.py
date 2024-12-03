@@ -4,7 +4,7 @@ from data_preprocessing import (
     load_documents, 
     naive_chunking, 
     semantic_chunking, 
-    create_vectorstore
+    create_or_load_vectorstore
 )
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -99,28 +99,43 @@ def create_rag_chain(prompt, chat_model):
 
 
 if __name__ == "__main__":
-    # Set the path to your PDF file
-    file_path = "../data/reports/axp-report.pdf"
-
-    # Load documents
-    documents = load_documents(file_path)
+    # Set the path to your PDF file(s)
+    file_paths = ["../data/reports/axp-report.pdf", "../data/10Ks/axp-2024-10k.pdf"] 
 
     # Initialize embedding model
     embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
 
-    # Choose chunking method ('naive' or 'semantic')
-    chunking_method = sys.argv[1] if len(sys.argv) > 1 else 'naive'
+    # Set vectorstore directory
+    persist_directory = "../data/vector_database"
 
-    if chunking_method == 'naive':
-        chunks = naive_chunking(documents)
-    elif chunking_method == 'semantic':
-        chunks = semantic_chunking(documents, embed_model)
+    # Check if ingestion is needed
+    if not os.path.exists(persist_directory):
+        print("Vectorstore not found. Starting ingestion...")
+        # Load and combine documents from all files
+        all_documents = []
+        for file_path in file_paths:
+            documents = load_documents(file_path)
+            all_documents.extend(documents)
+
+        # Choose chunking method ('naive' or 'semantic')
+        chunking_method = sys.argv[1] if len(sys.argv) > 1 else 'naive'
+
+        if chunking_method == 'naive':
+            chunks = naive_chunking(all_documents)
+        elif chunking_method == 'semantic':
+            chunks = semantic_chunking(all_documents, embed_model)
+        else:
+            print("Invalid chunking method. Choose 'naive' or 'semantic'.")
+            sys.exit(1)
+
+        # Create and persist vectorstore
+        vectorstore = create_or_load_vectorstore(chunks, embed_model, persist_directory)
     else:
-        print("Invalid chunking method. Choose 'naive' or 'semantic'.")
-        sys.exit(1)
+        print("Vectorstore already exists. Skipping ingestion...")
+        # Load the vectorstore
+        vectorstore = create_or_load_vectorstore(None, embed_model, persist_directory)
 
-    # Create vectorstore and retriever
-    vectorstore = create_vectorstore(chunks, embed_model)
+    # Create retriever
     retriever = create_retriever(vectorstore, k=5)
 
     # Define prompt and model
@@ -132,26 +147,28 @@ if __name__ == "__main__":
 
     # List of queries to run
     queries = [
-        "What was earnings per share in the third quarter of 2023?",
-        "What is the updated fair value estimate for American Express, and how does it compare to the previous estimate in terms of projected 2024 earnings?",
-        "What is the Opportunity in Credit Card Issuers?",
-        "What is the projected net interest income CAGR for the company from 2023 to 2028?"
+        "What factors establish the economic moat of Amex?",
+        "What are the potential risks Amex faces?",
+        "What is Amex's cash flow driver?",
+        "Do you think Amex can maintain its profitability in the existing future? Provide reasoning.",
+        "Will the profit margin shift in the future given managerial comments presented in the 10k? If so, in which direction? Provide quote and reasoning."
     ]
 
     # Run queries
     for query in queries:
         # Retrieve relevant documents
         retrieved_docs = retriever.get_relevant_documents(query)
-        
+        print(len(retrieved_docs))
         # Print the retrieved documents
         print(f"Retrieved documents for query '{query}':\n")
         for idx, doc in enumerate(retrieved_docs):
+            print("Testing")
             print(f"Document {idx+1}:\n{doc.page_content}\n{'-'*20}\n")
-        
+
         # Prepare the context by combining the retrieved documents
         context = "\n".join([doc.page_content for doc in retrieved_docs])
-        
+
         # Now invoke the chain with context and question
         response = rag_chain.invoke({"context": context, "question": query})
-        print(f"Question: {query}\n")
-        print(f"Answer: {response}\n{'-'*50}\n")
+        #print(f"Question: {query}\n")
+        #print(f"Answer: {response}\n{'-'*50}\n")
