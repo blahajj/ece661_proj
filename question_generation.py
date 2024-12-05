@@ -1,6 +1,6 @@
 import openai
 
-def generate_sub_questions(query, model="gpt-4o-mini"):
+def generate_sub_questions(query, document_type, model="gpt-4o-mini"):
     """
     Generate sub-questions from a broad query using an LLM.
 
@@ -12,8 +12,8 @@ def generate_sub_questions(query, model="gpt-4o-mini"):
     - List of sub-questions.
     """
     prompt = f"""
-    You are an financial expert assistant helping to refine a broad final question related to SEC document/ 10K document of the company. The user asked: "{query}".
-    Generate 6 detailed sub-questions that will help retrieve more specific and useful chunks for my RAG from the vector database related to the user query.
+    You are a seasoned financial analyst with a CFA certification who has extensive experiences screening investment opportunities for your clients. You are helping to refine a broad final question related to {document_type} of the company. The client asked: "{query}".
+    Generate 6 detailed sub-questions that relates to the companies foundamentals that will help retrieve more specific and useful chunks for my RAG from the vector database related to the user query.
     Make sure to only respond with questions that are relevant to the user query.
     Make sure that only questions are returned in the response in the following format:
     - Question 1

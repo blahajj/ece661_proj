@@ -1,6 +1,6 @@
 import openai
 
-def generate_final_response(aggregated_chunks, query, model="gpt-4o-mini"):
+def generate_final_response(aggregated_chunks, query, document_type, model="gpt-4o-mini"):
     """
     Generate the final response using aggregated chunks and the original query.
 
@@ -14,7 +14,7 @@ def generate_final_response(aggregated_chunks, query, model="gpt-4o-mini"):
     """
     context = "\n".join(aggregated_chunks)
     prompt = f"""
-    You are an financial expert at analysing the SEC and 10k reports. Use the context from the SEC and 10k reports of the company below to answer the user's question concisely and accurately.
+    You are a seasoned financial analyst with a CFA certification who has extensive experiences screening investment opportunities for your clients. Use the context from the {document_type} of the company below to answer the user's question concisely and accurately.
     Make sure your answers also include evidence from the context to support your response.
     Context:
     {context}

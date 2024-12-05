@@ -93,7 +93,7 @@ if user_query:
     try:
         # Layer 1: Generate Sub-Questions
         st.write("Generating sub-questions...")
-        sub_questions = generate_sub_questions(user_query)
+        sub_questions = generate_sub_questions(user_query, document_type)
         st.write("Sub-Questions Generated:")
         for i, sq in enumerate(sub_questions, 1):
             st.write(f"{i}. {sq}")
@@ -109,7 +109,7 @@ if user_query:
 
         # Layer 3: Generate Final Response
         st.write("Generating final response...")
-        final_response = generate_final_response(aggregated_chunks, user_query)
+        final_response = generate_final_response(aggregated_chunks, user_query, document_type)
         st.subheader("Final Response:")
         st.write(final_response)
 
