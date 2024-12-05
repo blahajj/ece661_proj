@@ -5,9 +5,11 @@ from chunking import chunk_data
 from storing_retrieval import index_chunks, retrieve_similar_chunks
 from llm import get_llm_response
 from evaluation import evaluate_response
+from question_generation import generate_sub_questions
+from response_generation import generate_final_response
 
 # Main Streamlit Application
-st.title("RAG for SEC and 10K Documents Using ChromaDB")
+st.title("Fin-RAG for SEC and 10K Documents")
 
 # Define available company names and document types
 company_names = [
@@ -57,39 +59,31 @@ if st.button("Process Document"):
         st.error(f"File not found: {file_path}")
     except Exception as e:
         st.error(f"Error processing document: {e}")
-
 # Query Input
-user_query = st.text_input("Enter your query:")
+user_query = st.text_input("Enter your question:")
 if user_query:
-    st.write("Retrieving relevant chunks...")
-    
     try:
-        # Retrieve relevant chunks from ChromaDB
+        # Layer 1: Generate Sub-Questions
+        st.write("Generating sub-questions...")
+        sub_questions = generate_sub_questions(user_query)
+        st.write("Sub-Questions Generated:")
+        for i, sq in enumerate(sub_questions, 1):
+            st.write(f"{i}. {sq}")
+
+        # Layer 2: Retrieve Chunks for Each Sub-Question
+        st.write("Retrieving chunks for sub-questions...")
         collection_name = f"{selected_company}_{document_type}".lower().replace(" ", "_")
-        relevant_chunks, chunk_ids = retrieve_similar_chunks(user_query, collection_name)
-        relevant_chunks = [chunk if isinstance(chunk, str) else " ".join(chunk) for chunk in relevant_chunks]
-        # Display relevant chunks
-        st.write("Relevant Chunks:")
-        for i, chunk in enumerate(relevant_chunks):
-            st.write(f"Chunk {chunk_ids[i]}: {chunk}")
+        aggregated_chunks = []
+        for question in sub_questions:
+            chunks, _ = retrieve_similar_chunks(question, collection_name, top_k=5)
+            aggregated_chunks.extend(chunks)
+        st.write(f"Total Chunks Retrieved: {len(aggregated_chunks)}")
 
-        # Get LLM response
-        st.write("Generating response using LLM...")
-        llm_response = get_llm_response(relevant_chunks)
-        st.subheader("LLM Response:")
-        st.write(llm_response)
-
-        llm_responses = [{
-        "query": user_query,
-        "llm_response": llm_response,
-        "relevant_chunks": " ".join(relevant_chunks)  # Join chunks into a single string
-        }]
-
-        # Evaluate the response
-        st.write("Evaluating response using RAGAS...")
-        evaluation_results = evaluate_response(llm_responses)
-        st.subheader("Evaluation Results:")
-        st.write(evaluation_results)
+        # Layer 3: Generate Final Response
+        st.write("Generating final response...")
+        final_response = generate_final_response(aggregated_chunks, user_query)
+        st.subheader("Final Response:")
+        st.write(final_response)
 
     except Exception as e:
         st.error(f"Error retrieving or processing query: {e}")
