@@ -36,7 +36,7 @@ def index_chunks(chunks, collection_name):
 
     # Generate embeddings for chunks
     embeddings = [get_embedding(chunk) for chunk in chunks]
-    ids = [f"chunk_{i}" for i in range(len(chunks))]
+    ids = [str(i) for i in range(len(chunks))]
 
     # Add chunks to the collection
     collection.add(documents=chunks, embeddings=embeddings, ids=ids)
@@ -62,4 +62,4 @@ def retrieve_similar_chunks(query, collection_name, top_k=5):
 
     # Query the collection
     results = collection.query(query_embeddings=[query_embedding], n_results=top_k)
-    return results['documents'], results['ids']
+    return results['documents'][0], results['ids'][0]
