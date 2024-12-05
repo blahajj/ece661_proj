@@ -23,7 +23,13 @@ selected_company = st.selectbox("Select a company:", company_names)
 document_type = st.radio("Select document type:", document_types)
 
 # Select chunking technique
-chunking_techniques = ["Fixed-size Chunking", "Semantic-based Chunking"]
+chunking_techniques = [
+    "Fixed-size Chunking", 
+    "Semantic-based Chunking", 
+    "Single-linkage Clustering", 
+    "DBSCAN Clustering", 
+    "Breakpoint-based Chunking"
+]
 selected_chunking = st.radio("Select chunking technique:", chunking_techniques)
 
 # Directory and file selection based on naming convention
@@ -45,10 +51,31 @@ if st.button("Process Document"):
             # Preprocess the document
             raw_text = preprocess_data(file)
 
+            st.write(f"Type of raw_text after preprocess_data: {type(raw_text)}")
+            
+
+
             # Chunk the document
             st.write("Chunking the document...")
-            chunks = chunk_data(raw_text, selected_chunking)
+            if selected_chunking in ["Single-linkage Clustering", "DBSCAN Clustering", "Breakpoint-based Chunking"]:
+                # For clustering-based methods, pre-process chunks and embeddings
+                print("error")
+                pre_chunks = chunk_data(raw_text, "Fixed-size Chunking", chunk_size=500)
+                
+                print(type(pre_chunks))
+                embeddings = preprocess_data(pre_chunks)  # Replace with embedding logic if necessary
+                chunks = chunk_data(
+                    raw_text=None,
+                    chunking_method=selected_chunking,
+                    pre_chunks=pre_chunks,
+                    embeddings=embeddings
+                )
+            else:
+                # For fixed-size or semantic-based chunking
+                chunks = chunk_data(raw_text, selected_chunking)
+            
             st.write(f"Number of chunks created: {len(chunks)}")
+            st.write(f"Type of chunks: {type(chunks)}")
 
             # Store chunks in ChromaDB
             collection_name = f"{selected_company}_{document_type}".lower().replace(" ", "_")
@@ -59,6 +86,7 @@ if st.button("Process Document"):
         st.error(f"File not found: {file_path}")
     except Exception as e:
         st.error(f"Error processing document: {e}")
+
 # Query Input
 user_query = st.text_input("Enter your question:")
 if user_query:
