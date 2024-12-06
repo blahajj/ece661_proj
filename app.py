@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from data_preprocessing import preprocess_data
-from chunking import chunk_data
+from chunking import chunk_data  # Updated chunking.py includes Sentence-based Chunking
 from storing_retrieval import index_chunks, retrieve_similar_chunks
 from llm import get_llm_response
 from evaluation import evaluate_response
@@ -23,7 +23,11 @@ selected_company = st.selectbox("Select a company:", company_names)
 document_type = st.radio("Select document type:", document_types)
 
 # Select chunking technique
-chunking_techniques = ["Fixed-size Chunking", "Semantic-based Chunking"]
+chunking_techniques = [
+    "Fixed-size Chunking", 
+    "Semantic-based Chunking", 
+    "Sentence-based Chunking"
+]
 selected_chunking = st.radio("Select chunking technique:", chunking_techniques)
 
 # Directory and file selection based on naming convention
@@ -59,6 +63,7 @@ if st.button("Process Document"):
         st.error(f"File not found: {file_path}")
     except Exception as e:
         st.error(f"Error processing document: {e}")
+
 # Query Input
 user_query = st.text_input("Enter your question:")
 if user_query:
