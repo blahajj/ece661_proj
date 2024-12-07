@@ -1,12 +1,11 @@
 import os
 import streamlit as st
 from data_preprocessing import preprocess_data
-from chunking import chunk_data  # Updated chunking.py includes Sentence-based Chunking
+from chunking import chunk_data 
 from storing_retrieval import index_chunks, retrieve_similar_chunks
-from llm import get_llm_response
-from evaluation import evaluate_response
 from question_generation import generate_sub_questions
 from response_generation import generate_final_response
+from evaluation import evaluate_response_with_ragas
 
 # Main Streamlit Application
 st.title("Fin-RAG for SEC and 10K Documents")
@@ -79,9 +78,16 @@ if user_query:
         st.write("Retrieving chunks for sub-questions...")
         collection_name = f"{selected_company}_{document_type}".lower().replace(" ", "_")
         aggregated_chunks = []
+        retrieved_indices=[]
+        retrived_cosine_similarity=[]
         for question in sub_questions:
-            chunks, _ = retrieve_similar_chunks(question, collection_name, top_k=5)
-            aggregated_chunks.extend(chunks)
+            retrieved_chunks, indices, distances = retrieve_similar_chunks(question, collection_name, top_k=5)
+            aggregated_chunks.extend(retrieved_chunks)
+            retrived_cosine_similarity.extend(distances)
+            if isinstance(indices[0], str) and indices[0].startswith("chunk_"):
+                indices = [int(idx.replace("chunk_", "")) for idx in indices]
+    
+            retrieved_indices.extend(indices)  # Aggregate all indices
         st.write(f"Total Chunks Retrieved: {len(aggregated_chunks)}")
 
         # Layer 3: Generate Final Response
@@ -89,6 +95,28 @@ if user_query:
         final_response = generate_final_response(aggregated_chunks, user_query)
         st.subheader("Final Response:")
         st.write(final_response)
+
+        # Layer 4: Evaluate the Response
+        st.write("Evaluating response with RAGAs...")
+        try:
+            questions = [user_query]
+            answers = [final_response]
+            contexts = [aggregated_chunks]  # Combine all retrieved chunks into a single context
+            evaluation_results = evaluate_response_with_ragas(
+                questions=questions,
+                answers=answers,
+                contexts=contexts,
+            )
+            # Convert EvaluationResult to Pandas DataFrame
+            results_df = evaluation_results.to_pandas()
+
+            # Display evaluation results
+            st.subheader("Evaluation Results:")
+            st.write(f"Cosine Similarity of chunks: {retrived_cosine_similarity}")
+            st.dataframe(results_df, use_container_width=True)
+
+        except Exception as e:
+            st.error(f"Error during evaluation: {e}")
 
     except Exception as e:
         st.error(f"Error retrieving or processing query: {e}")

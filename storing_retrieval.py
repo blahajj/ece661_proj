@@ -62,4 +62,4 @@ def retrieve_similar_chunks(query, collection_name, top_k=5):
 
     # Query the collection
     results = collection.query(query_embeddings=[query_embedding], n_results=top_k)
-    return results['documents'][0], results['ids'][0]
+    return results['documents'][0], results['ids'][0],[1 - (distance / 2) for distance in results['distances'][0]] 
