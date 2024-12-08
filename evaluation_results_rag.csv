@@ -1,0 +1,17 @@
+Approach,Query Type,Chunking,Total Chunks,Retrieved Chunks,Average Cosine Similarity,Evaluation Results,Sub-questions Used
+Simple RAG,Broad Financial Question,Fixed-size Chunking,165,5,0.3789769172668457,"{'answer_relevancy': 0.8865, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 0.8875}",False
+Multi-Layer RAG,Broad Financial Question,Fixed-size Chunking,165,30,0.5155552387237549,"{'answer_relevancy': 0.8722, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 0.8996}",True
+Simple RAG,Broad Financial Question,Fixed-size Chunking,165,5,0.4249828577041626,"{'answer_relevancy': 0.4000, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 1.0000}",False
+Multi-Layer RAG,Broad Financial Question,Fixed-size Chunking,165,30,0.5051150858402252,"{'answer_relevancy': 0.5000, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 1.0000}",True
+Simple RAG,Financial Foundation,Fixed-size Chunking,165,5,0.46838773488998414,"{'answer_relevancy': 0.9463, 'faithfulness': 0.2000, 'llm_context_precision_without_reference': 0.7000}",False
+Multi-Layer RAG,Financial Foundation,Fixed-size Chunking,165,30,0.40675048828125,"{'answer_relevancy': 0.9299, 'faithfulness': 0.6923, 'llm_context_precision_without_reference': 0.6822}",True
+Simple RAG,Financial Foundation,Fixed-size Chunking,165,5,0.36216059923171995,"{'answer_relevancy': 0.5000, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 1.0000}",False
+Multi-Layer RAG,Financial Foundation,Fixed-size Chunking,165,30,0.4134079933166504,"{'answer_relevancy': 0.8764, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 1.0000}",True
+Simple RAG,Broad Financial Question,Sentence-based Chunking,170,5,0.36794581413269045,"{'answer_relevancy': 0.6100, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 1.0000}",False
+Multi-Layer RAG,Broad Financial Question,Sentence-based Chunking,170,30,0.5122792422771454,"{'answer_relevancy': 0.8693, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 0.8739}",True
+Simple RAG,Broad Financial Question,Sentence-based Chunking,170,5,0.4138510346412659,"{'answer_relevancy': 0.9360, 'faithfulness': 0.5588, 'llm_context_precision_without_reference': 1.0000}",False
+Multi-Layer RAG,Broad Financial Question,Sentence-based Chunking,170,30,0.4362101674079895,"{'answer_relevancy': 0.8899, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 0.9938}",True
+Simple RAG,Financial Foundation,Sentence-based Chunking,170,5,0.46972672939300536,"{'answer_relevancy': 0.8981, 'faithfulness': 0.6667, 'llm_context_precision_without_reference': 0.6389}",False
+Multi-Layer RAG,Financial Foundation,Sentence-based Chunking,170,30,0.391606605052948,"{'answer_relevancy': 0.8948, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 0.6805}",True
+Simple RAG,Financial Foundation,Sentence-based Chunking,170,5,0.36498814821243286,"{'answer_relevancy': 0.34500, 'faithfulness': 0.7500, 'llm_context_precision_without_reference': 1.0000}",False
+Multi-Layer RAG,Financial Foundation,Sentence-based Chunking,170,30,0.4425398826599121,"{'answer_relevancy': 0.8941, 'faithfulness': 1.0000, 'llm_context_precision_without_reference': 0.9466}",True
