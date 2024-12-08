@@ -8,7 +8,13 @@ from response_generation import generate_final_response
 from evaluation import evaluate_response_with_ragas
 
 # Main Streamlit Application
-st.title("Fin-RAG for SEC and 10K Documents")
+st.title("Fin-RAG for SEC Documents and Analysts Reports")
+
+st.markdown(
+    "### ⚠️ Disclaimer\n"
+    "The information provided by this application and the language model is for informational purposes only and does **not** constitute financial advice. "
+    "Please consult a financial advisor or professional before making any financial decisions."
+)
 
 # Define available company names and document types
 company_names = [
@@ -68,7 +74,7 @@ if user_query:
     try:
         # Layer 1: Generate Sub-Questions
         st.write("Generating sub-questions...")
-        sub_questions = generate_sub_questions(user_query)
+        sub_questions = generate_sub_questions(user_query, document_type)
         st.write("Sub-Questions Generated:")
         for i, sq in enumerate(sub_questions, 1):
             st.write(f"{i}. {sq}")
@@ -91,7 +97,7 @@ if user_query:
 
         # Layer 3: Generate Final Response
         st.write("Generating final response...")
-        final_response = generate_final_response(aggregated_chunks, user_query)
+        final_response = generate_final_response(aggregated_chunks, user_query, document_type)
         st.subheader("Final Response:")
         st.write(final_response)
 
