@@ -23,8 +23,7 @@ document_type = st.radio("Select document type:", document_types)
 
 # Select chunking technique
 chunking_techniques = [
-    "Fixed-size Chunking", 
-    "Semantic-based Chunking", 
+    "Fixed-size Chunking",
     "Sentence-based Chunking"
 ]
 selected_chunking = st.radio("Select chunking technique:", chunking_techniques)
